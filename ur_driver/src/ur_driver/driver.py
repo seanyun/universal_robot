@@ -666,7 +666,7 @@ class URTrajectoryFollower(object):
         self.following_lock = threading.Lock()
         self.T0 = time.time()
         self.robot = robot
-        self.server = actionlib.ActionServer("follow_joint_trajectory",
+        self.server = actionlib.ActionServer("lab_arm/follow_joint_trajectory",
                                              FollowJointTrajectoryAction,
                                              self.on_goal, self.on_cancel, auto_start=False)
 
