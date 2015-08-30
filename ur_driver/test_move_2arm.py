@@ -7,7 +7,8 @@ from control_msgs.msg import *
 from trajectory_msgs.msg import *
 
 JOINT_NAMES = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
-               'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
+               'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint'
+]
 #Q1 = [2.2,0,-1.57,0,0,0]
 #Q2 = [1.5,0,-1.57,0,0,0]
 #Q3 = [1.5,-0.2,-1.57,0,0,0]
@@ -17,6 +18,7 @@ Q2 = [0,-1.57,0.0,0,0,0]
 Q3 = [0,-1.57,0.78,0,0,0]
 
 client = None
+client2 = None
 
 def move1():
     g = FollowJointTrajectoryGoal()
@@ -27,6 +29,7 @@ def move1():
         JointTrajectoryPoint(positions=Q2, velocities=[0]*6, time_from_start=rospy.Duration(3.0)),
         JointTrajectoryPoint(positions=Q3, velocities=[0]*6, time_from_start=rospy.Duration(4.0))]
     client.send_goal(g)
+    client2.send_goal(g)
     try:
         client.wait_for_result()
     except KeyboardInterrupt:
@@ -66,10 +69,13 @@ def move_repeated():
             JointTrajectoryPoint(positions=Q3, velocities=[0]*6, time_from_start=rospy.Duration(d)))
         d += 2
     client.send_goal(g)
+    client2.send_goal(g)
     try:
         client.wait_for_result()
+        client2.wait_for_result()
     except KeyboardInterrupt:
         client.cancel_goal()
+        client2.cancel_goal()
         raise
 
 def move_interrupt():
@@ -93,12 +99,16 @@ def move_interrupt():
 
 def main():
     global client
+    global client2
     try:
         rospy.init_node("test_move", anonymous=True, disable_signals=True)
-        client = actionlib.SimpleActionClient('right_arm/lab_arm/follow_joint_trajectory', FollowJointTrajectoryAction)
-        print "Waiting for server..."
+        client = actionlib.SimpleActionClient('left_arm/lab_arm/follow_joint_trajectory', FollowJointTrajectoryAction)
+        client2 = actionlib.SimpleActionClient('right_arm/lab_arm/follow_joint_trajectory', FollowJointTrajectoryAction)
+        print "Waiting for left server..."
         client.wait_for_server()
-        print "Connected to server"
+        print "Waiting for right server..."
+        client2.wait_for_server()
+        print "Connected to both servers"
         #move1()
         move_repeated()
         #move_disordered()

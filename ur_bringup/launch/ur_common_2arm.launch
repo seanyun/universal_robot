@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!--
+  Universal robot common bringup.  Starts ur driver node and robot state
+  publisher (translates joint positions to propper tfs).
+  
+  NOTE: This launch file also starts a tf2 node, which is not typically
+  used
+
+  Usage:
+    ur_common.launch robot_ip:=<value>
+-->
+<launch>
+  <!-- robot_ip: IP-address of the robot's socket-messaging server -->
+  <arg name="robot_ip_left" default="128.18.14.194"/>
+  <arg name="robot_ip_right" default="128.18.14.196"/>
+  <arg name="reverse_port_left" default="50001"/>
+  <arg name="reverse_port_right" default="50002"/>
+  <arg name="min_payload"  default="0.0"/>
+  <arg name="max_payload"  default="10.0"/>
+  
+  <!-- The max_velocity parameter is only used for debugging in the ur_driver. It's not related to actual velocity limits -->
+  <arg name="max_velocity" default="10.0"/> <!-- [rad/s] -->
+  
+  <!-- copy the specified IP address to be consistant with ROS-Industrial spec.
+  NOTE: The ip address is actually passed to the driver on the command line -->
+  <param name="/robot_ip_address" type="str" value="$(arg robot_ip_left)"/>
+  <param name="/robot_reverse_port" type="int" value="$(arg reverse_port_left)"/>
+  
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+
+  <!-- driver -->
+  <node name="left_ur_driver" pkg="ur_driver" type="driver.py" args="$(arg robot_ip_left) $(arg reverse_port_left)" output="screen">
+    <param name="min_payload" type="double" value="$(arg min_payload)"/>
+    <param name="max_payload" type="double" value="$(arg max_payload)"/>
+    <param name="max_velocity" type="double" value="$(arg max_velocity)"/>
+    <param name="prefix" type="str" value="1_" />
+    <remap from="/lab_arm/follow_joint_trajectory/cancel" to="/left_arm/lab_arm/follow_joint_trajectory/cancel"/>
+    <remap from="/lab_arm/follow_joint_trajectory/feedback" to="/left_arm/lab_arm/follow_joint_trajectory/feedback"/>
+    <remap from="/lab_arm/follow_joint_trajectory/goal" to="/left_arm/lab_arm/follow_joint_trajectory/goal"/>
+    <remap from="/lab_arm/follow_joint_trajectory/result" to="/left_arm/lab_arm/follow_joint_trajectory/result"/>
+    <remap from="/lab_arm/follow_joint_trajectory/status" to="/left_arm/lab_arm/follow_joint_trajectory/status"/>
+  </node>
+
+  <node name="right_ur_driver" pkg="ur_driver" type="driver.py" args="$(arg robot_ip_right) $(arg reverse_port_right)" output="screen">
+    <param name="min_payload" type="double" value="$(arg min_payload)"/>
+    <param name="max_payload" type="double" value="$(arg max_payload)"/>
+    <param name="max_velocity" type="double" value="$(arg max_velocity)"/>
+    <param name="prefix" type="str" value="2_" />
+    <remap from="/lab_arm/follow_joint_trajectory/cancel" to="/right_arm/lab_arm/follow_joint_trajectory/cancel"/>
+    <remap from="/lab_arm/follow_joint_trajectory/feedback" to="/right_arm/lab_arm/follow_joint_trajectory/feedback"/>
+    <remap from="/lab_arm/follow_joint_trajectory/goal" to="/right_arm/lab_arm/follow_joint_trajectory/goal"/>
+    <remap from="/lab_arm/follow_joint_trajectory/result" to="/right_arm/lab_arm/follow_joint_trajectory/result"/>
+    <remap from="/lab_arm/follow_joint_trajectory/status" to="/right_arm/lab_arm/follow_joint_trajectory/status"/>
+  </node>
+
+   
+  <!-- TF Buffer Server -->
+  <node pkg="tf2_ros" type="buffer_server" name="tf2_buffer_server">
+    <param name="buffer_size" value="120.0"/>
+  </node>
+
+</launch>
