@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!--
+  Universal robot ur5 launch.  Loads ur5 robot description (see ur_common.launch
+  for more info)
+
+  Usage:
+    ur5_bringup.launch robot_ip:=<value>
+-->
+<launch>
+  
+  <!-- robot_ip: IP-address of the robot's socket-messaging server -->
+  <arg name="robot_ip_left" default="128.18.14.194"/>
+  <arg name="robot_ip_right" default="128.18.14.196"/>
+  <arg name="reverse_port_left" default="50001"/>
+  <arg name="reverse_port_right" default="50002"/>
+<!--
+  <arg name="reverse_port" default="50001"/>
+-->
+  <arg name="limited" default="false"/>
+  <arg name="min_payload"  default="0.0"/>
+  <arg name="max_payload"  default="10.0"/>
+
+  <!-- robot model -->
+
+  <include file="$(find pa_arm_description)/launch/ur5_upload.launch">
+    <arg name="limited" value="$(arg limited)"/>
+  </include>
+  
+  <!-- ur common -->
+  <include file="$(find ur_bringup)/launch/ur_common_2arm.launch">
+    <arg name="robot_ip_left" value="$(arg robot_ip_left)"/>
+    <arg name="robot_ip_right" value="$(arg robot_ip_right)"/>
+    <arg name="reverse_port_left" value="$(arg reverse_port_left)"/>
+    <arg name="reverse_port_right" value="$(arg reverse_port_right)"/>
+    <arg name="min_payload"  value="$(arg min_payload)"/>
+    <arg name="max_payload"  value="$(arg max_payload)"/>
+  </include>
+
+</launch>
