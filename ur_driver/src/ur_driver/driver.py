@@ -662,7 +662,9 @@ class URTrajectoryFollower(object):
     RATE = 0.02
     def __init__(self, robot, goal_time_tolerance=None):
         self.goal_time_tolerance = goal_time_tolerance or rospy.Duration(0.0)
-        self.joint_goal_tolerances = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+        # ADAS: Drop joint goal tolerances for less positioning errors
+        #self.joint_goal_tolerances = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+        self.joint_goal_tolerances = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
         self.following_lock = threading.Lock()
         self.T0 = time.time()
         self.robot = robot
